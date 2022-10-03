@@ -1,6 +1,12 @@
 const puppeteer = require('puppeteer');
 const path = require('path');
 const fs = require('fs');
+const ffmpegInstaller = require("@ffmpeg-installer/ffmpeg");
+const ffprobe = require("@ffprobe-installer/ffprobe");
+
+const ffmpeg = require("fluent-ffmpeg")()
+.setFfprobePath(ffprobe.path)
+.setFfmpegPath(ffmpegInstaller.path);
 
 const randomUUI = (a,b) => {for(b=a='';a++<36;b+=a*51&52?(a^15?8^Math.random()*(a^20?16:4):4).toString(16):'');return b}
 
@@ -66,20 +72,38 @@ class photoCinematic {
         }, fileName);
 
         const filePath = path.join(this.downloadPath, `${fileName}.gif`);
+        const fileMp4Path = path.join(this.downloadPath, `${fileName}.mp4`);
         await this.validateDownload(page, filePath);
         await browser.close();
         
-        if (args.toBase64) {
-          const fileBase64 = base64Encode(filePath);
-          resolve({
-            file: filePath,
-            base64: fileBase64
-          });
-        } else {
-          resolve({
-            file: filePath
-          });
-        }
+        ffmpeg
+        .input(filePath)
+        .outputOptions([
+          "-pix_fmt yuv420p",
+          "-c:v libx264",
+          "-movflags +faststart",
+          
+        ])
+        .noAudio()
+        .output(fileMp4Path)
+        .on("end", () => {
+          if (args.toBase64) {
+            const fileBase64 = base64Encode(fileMp4Path);
+            resolve({
+              file: filePath,
+              fileMp4: fileMp4Path,
+              base64: fileBase64
+            });
+          } else {
+            resolve({
+              file: filePath,
+              fileMp4: fileMp4Path
+            });
+          }
+        })
+        .on("error", (e) => reject(e))
+        .run();
+        
       } catch(err) {
         reject(err);
       }
