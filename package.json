@@ -1,0 +1,25 @@
+{
+  "name": "3dphoto",
+  "version": "1.0.0",
+  "description": "",
+  "main": "./src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node ./src/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/luiscruzga/3dphoto.git"
+  },
+  "author": "Luis Cruz",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/luiscruzga/3dphoto/issues"
+  },
+  "homepage": "https://github.com/luiscruzga/3dphoto#readme",
+  "dependencies": {
+    "fs": "^0.0.1-security",
+    "path": "^0.12.7",
+    "puppeteer": "^18.0.5"
+  }
+}
